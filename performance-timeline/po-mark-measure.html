@@ -10,77 +10,67 @@ Performance.mark() and Performance.measure() will <a href="https://w3c.github.io
 </p>
 <div id="log"></div>
 <script>
-  var overallTest = async_test("entries are observable");
-  var stored_entries = [];
-  var overall_observer;
-  function overallPO(entryList, obs) {
-    stored_entries =
-      stored_entries.concat(entryList.getEntries());
-    if (stored_entries.length >= 4) {
-      overallTest.step(function() {
-        checkEntries(stored_entries,
-          [{ entryType: "mark", name: "mark1"},
-          { entryType: "mark", name: "mark2"},
-          { entryType: "measure", name: "measure1"},
-          { entryType: "measure", name: "measure2"}]);
-        overall_observer.disconnect();
-        overallTest.done();
-      });
-    }
-  }
-  overallTest.step(function() {
-    overall_observer = new PerformanceObserver(overallPO);
-    overall_observer.observe({entryTypes: ["mark", "measure"]});
-  });
+  async_test(function (t) {
+    var stored_entries = [];
+    var observer  = new PerformanceObserver(
+        t.step_func(function (entryList, obs) {
+          stored_entries =
+            stored_entries.concat(entryList.getEntries());
+          if (stored_entries.length >= 4) {
+            checkEntries(stored_entries,
+              [{ entryType: "mark", name: "mark1"},
+              { entryType: "mark", name: "mark2"},
+              { entryType: "measure", name: "measure1"},
+              { entryType: "measure", name: "measure2"}]);
+            observer.disconnect();
+            t.done();
+          }
+        })
+      );
+    observer.observe({entryTypes: ["mark", "measure"]});
+  }, "entries are observable");
 
-  var markTest = async_test("mark entries are observable");
-  var mark_entries = [];
-  var mark_observer;
-  function markPO(entryList, obs) {
-    mark_entries =
-      mark_entries.concat(entryList.getEntries());
-    if (mark_entries.length >= 2) {
-      markTest.step(function() {
-        checkEntries(mark_entries,
-          [{ entryType: "mark", name: "mark1"},
-          { entryType: "mark", name: "mark2"}]);
-        checkEntries(entryList.getEntriesByName("mark1"),
-          [{ entryType: "mark", name: "mark1"}]);
-        mark_observer.disconnect();
-        markTest.done();
-      });
-    }
-  }
-  markTest.step(function() {
-    mark_observer = new PerformanceObserver(markPO);
-    mark_observer.observe({entryTypes: ["mark"]});
+  async_test(function (t) {
+    var mark_entries = [];
+    var observer = new PerformanceObserver(
+        t.step_func(function (entryList, obs) {
+          mark_entries =
+            mark_entries.concat(entryList.getEntries());
+          if (mark_entries.length >= 2) {
+            checkEntries(mark_entries,
+              [{ entryType: "mark", name: "mark1"},
+              { entryType: "mark", name: "mark2"}]);
+            checkEntries(entryList.getEntriesByName("mark1"),
+              [{ entryType: "mark", name: "mark1"}]);
+            observer.disconnect();
+            t.done();
+          }
+        })
+      );
+    observer.observe({entryTypes: ["mark"]});
     performance.mark("mark1");
     performance.mark("mark2");
-  });
+  }, "mark entries are observable");
 
-  var measureTest = async_test("measure entries are observable");
-  var measure_entries = [];
-  var measure_observer;
-  function measurePO(entryList, obs) {
-    measure_entries =
-      measure_entries.concat(entryList.getEntries());
-    if (measure_entries.length >= 2) {
-      measureTest.step(function() {
-        checkEntries(measure_entries,
-          [{ entryType: "measure", name: "measure1"},
-          { entryType: "measure", name: "measure2"}]);
-        checkEntries(entryList.getEntriesByName("measure2"),
-          [{ entryType: "measure", name: "measure2"}]);
-        measure_observer.disconnect();
-        measureTest.done();
-      });
-    }
-  }
-  measureTest.step(function() {
-    measure_observer = new PerformanceObserver(measurePO);
-    measure_observer.observe({entryTypes: ["measure"]});
+  async_test(function (t) {
+    var measure_entries = [];
+    var observer = new PerformanceObserver(
+        t.step_func(function (entryList, obs) {
+          measure_entries =
+            measure_entries.concat(entryList.getEntries());
+          if (measure_entries.length >= 2) {
+            checkEntries(measure_entries,
+              [{ entryType: "measure", name: "measure1"},
+              { entryType: "measure", name: "measure2"}]);
+            checkEntries(entryList.getEntriesByName("measure2"),
+              [{ entryType: "measure", name: "measure2"}]);
+            observer.disconnect();
+            t.done();
+          }
+        })
+      );
+    observer.observe({entryTypes: ["measure"]});
     performance.measure("measure1");
     performance.measure("measure2");
-  });
-
+  }, "measure entries are observable");
 </script>

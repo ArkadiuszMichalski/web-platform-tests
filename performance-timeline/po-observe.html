@@ -39,22 +39,20 @@
     obs.observe({entryTypes: ["mark"], others: true});
   }, "Filter unsupported entryType entryType names within the entryTypes sequence");
 
-  var observeTest = async_test("replace observer if already present");
-  var observer;
-  function measurePO(entryList, obs) {
-    observeTest.step(function() {
+  async_test(function (t) {
+  var observer = new PerformanceObserver(
+      t.step_func(function (entryList, obs) {
         assert_equals(observer, obs, "observer is second parameter");
         checkEntries(entryList.getEntries(),
           [{ entryType: "measure", name: "measure1"}]);
         observer.disconnect();
-        observeTest.done();
-    });
-  }
-  observeTest.step(function() {
-    observer = new PerformanceObserver(measurePO);
+        t.done();
+      })
+    );
     performance.clearMarks();
     observer.observe({entryTypes: ["mark"]});
     observer.observe({entryTypes: ["measure"]});
     performance.mark("mark1");
     performance.measure("measure1");
-  });</script>
+  }, "replace observer if already present");
+</script>

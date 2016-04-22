@@ -10,34 +10,31 @@ New resources will <a href="https://w3c.github.io/performance-timeline/#dfn-queu
 </p>
 <div id="log"></div>
 <script>
-  var resourceTest = async_test("resource entries are observable");
-  var resource_observer;
-  var stored_entries = [];
-  var img_location = document.location.origin
-     + "/performance-timeline/resources/square.png?random=";
-  var img1 = img_location + Math.floor(Math.random() * 100);
-  var img2 = img_location + Math.floor(Math.random() * 1000);
-  function resourcePO(entryList, obs) {
-    stored_entries =
-      stored_entries.concat(entryList.getEntriesByType("resource"));
-    if (stored_entries.length >= 2) {
-      resourceTest.step(function() {
-        checkEntries(stored_entries,
-          [{ entryType: "resource", name: img1},
-           { entryType: "resource", name: img2}]);
-        resource_observer.disconnect();
-        resourceTest.done();
-      });
-    }
-  }
-  resourceTest.step(function() {
-    resource_observer = new PerformanceObserver(resourcePO);
-    resource_observer.observe({entryTypes: ["resource"]});
+  async_test(function (t) {
+    var stored_entries = [];
+    var img_location = document.location.origin
+       + "/performance-timeline/resources/square.png?random=";
+    var img1 = img_location + Math.floor(Math.random() * 100);
+    var img2 = img_location + Math.floor(Math.random() * 1000);
+    var observer = new PerformanceObserver(
+        t.step_func(function (entryList, obs) {
+          stored_entries =
+            stored_entries.concat(entryList.getEntriesByType("resource"));
+          if (stored_entries.length >= 2) {
+            checkEntries(stored_entries,
+              [{ entryType: "resource", name: img1},
+               { entryType: "resource", name: img2}]);
+            observer.disconnect();
+            t.done();
+          }
+        })
+      );
+    observer.observe({entryTypes: ["resource"]});
     var img = document.createElement("img");
     img.src = img1;
     document.body.appendChild(img);
     img = document.createElement("img");
     img.src = img2;
     document.body.appendChild(img);
-  });
+  }, "resource entries are observable");
 </script>
