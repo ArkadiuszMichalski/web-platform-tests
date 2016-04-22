@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<meta charset=utf-8>
+<title>PerformanceObservers: navigation</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<script src="performanceobservers.js"></script>
+<h1>PerformanceObservers: navigation</h1>
+<p>
+Navigation will <a href="https://w3c.github.io/performance-timeline/#dfn-queue-a-performanceentry">queue a PerformanceEntry</a>.
+</p>
+<div id="log"></div>
+<script>
+  var navigationTest = async_test("navigation entry is observable");
+  var navigation_observer;
+  function navigationPO(entryList, obs) {
+    navigationTest.step(function() {
+      checkEntries(entryList.getEntries(),
+        [{ entryType: "navigation", name: "document"}]);
+      checkEntries(entryList.getEntriesByType("navigation"),
+        [{ entryType: "navigation", name: "document"}]);
+      checkEntries(entryList.getEntriesByName("document"),
+        [{ entryType: "navigation", name: "document"}]);
+      navigation_observer.disconnect();
+      navigationTest.done();
+    });
+  }
+  navigationTest.step(function() {
+    navigation_observer = new PerformanceObserver(navigationPO);
+    navigation_observer.observe({entryTypes: ["navigation"]});
+  });
+</script>
